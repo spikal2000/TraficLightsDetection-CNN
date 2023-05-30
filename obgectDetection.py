@@ -1,57 +1,36 @@
 import cv2
 import numpy as np
+from ultralytics import YOLO
 
-# Load Yolo
-net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
-layer_names = net.getLayerNames()
-output_layers = [layer_names[i[0]-1] for i in net.getUnconnectedOutLayers()]
+# def preprocess_for_your_model(image):
+#     # Add your preprocessing steps here. For example, resizing the image to the
+#     # input size of your model, normalization, etc.
+#     pass
 
-#camera
-cap = cv2.VideoCapture(0)
+# Initialize the YOLO model
+model = YOLO("yolov8m_custom.pt")
 
-#model
-#model = load_model('model.h5')
+# Load your CNN model here
+# your_model = load_your_model()
 
-while True:
-    ret,frame = cap.read()
+# Predict with YOLO
+results = model.predict(source="0", show=True)
 
-    # Detecting objects with yolo
-    blob = cv2.dnn.blobFromImage(frame, 0.00392, (416,416), (0,0,0), True, crop=False)
-    net.setInput(blob)
-    outs = net.forward(output_layers)
+# Loop over the detections
+for result in results:
+    for box in result.boxes:
+        x1, y1, x2, y2 = [int(i) for i in box[:4]]  # Get the box coordinates
+        # Extract the object patch
+        obj_img = result.orig_img[y1:y2, x1:x2]
+        # Preprocess the object patch for your model
+        # input_for_your_model = preprocess_for_your_model(obj_img)
+        # # Run your model on the object patch
+        # your_model_prediction = your_model.predict(input_for_your_model)
+        
+        # Add text above the bounding box
+        # cv2.putText(result.orig_img, f'Predict: {your_model_prediction}', (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
 
-    #loop through the detected objects
-    for out in outs:
-        for detection in out:   
-            scotres = detection[5:]
-            class_id = np.argmax(scores)
-            confidence = scores[class_id]
-
-            if confidence > 0.5:
-                #object detected
-                center_x = int(detection[0]* frame.shape[1])
-                center_y = int(detection[1]* frame.shape[0])
-                w = int(detection[2]* frame.shape[1])
-                h = int(detection[3]* frame.shape[0])
-                x = int(center_x - w/2)
-                y = int(center_y - h/2)
-
-                #draw a rectangle
-                cv2.rectangle(frame, (x,y), (x+w, y+h), (0,255,0), 2)
-
-                #Crop, process the region for cnn
-                #roi = pre_process(frame[y:y+h, x:x+w])
-
-                #predict the class
-                #pred = model.predict(roi)
-
-                #put text
-                #cv2.putText(frame, pred, (x,y), font, 1, (0,0,255), 2)
-    cv2.imshow('frame', frame)
-
-    #press q to quit
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-cap.release()
+# Show the image
+cv2.imshow("Image", result.orig_img)
+cv2.waitKey(0)
 cv2.destroyAllWindows()
