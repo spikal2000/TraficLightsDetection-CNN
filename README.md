@@ -1,2 +1,2 @@
-# TraficLightsDetection-CNN
+# TraficSignsDetection-CNN
  
