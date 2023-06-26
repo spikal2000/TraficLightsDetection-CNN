@@ -1,6 +1,0 @@
-train: C:\Users\spika\Desktop\train yolo\train
-val: C:\Users\spika\Desktop\train yolo\val
-
-nc: 1
-
-names: ["stop"]
