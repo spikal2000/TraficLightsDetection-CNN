@@ -12,17 +12,18 @@ from tflearn.layers.estimator import regression
 from tflearn.data_preprocessing import ImagePreprocessing
 from tflearn.data_augmentation import ImageAugmentation
 
-# Function to load the data
 def load_data(data_dir, num_classes):
     X = []
     Y = []
     for class_id in range(num_classes):
-        for filename in glob.glob(os.path.join(data_dir, str(class_id), '*.jpg')):
-            im=Image.open(filename)
-            im=np.array(im)
+        for filename in glob.glob(os.path.join(data_dir, str(class_id), '*.png')):
+            print(f"Loading {filename}")  # Add this line to print out each file being loaded
+            im = Image.open(filename)
+            im = np.array(im)
             X.append(im)
             Y.append(class_id)
     return np.array(X), np.array(Y)
+
 
 num_classes = 43  # Adjust this to match the number of road sign types in your dataset
 data_dir = '../Traffic_Sign_Dataset/Train'
