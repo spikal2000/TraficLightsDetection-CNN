@@ -1,0 +1,2 @@
+model_checkpoint_path: "C:\\Users\\spika\\Desktop\\git\\TraficSignsDetection-CNN\\road_signs_model.tfl"
+all_model_checkpoint_paths: "C:\\Users\\spika\\Desktop\\git\\TraficSignsDetection-CNN\\road_signs_model.tfl"

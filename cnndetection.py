@@ -1,54 +1,56 @@
 from __future__ import division, print_function, absolute_import
 
 import os
-import cv2
+import glob
 import numpy as np
-from sklearn.model_selection import train_test_split
-from tflearn.data_utils import to_categorical
-from tflearn.data_preprocessing import ImagePreprocessing
-from tflearn.data_augmentation import ImageAugmentation
+from PIL import Image
+import tflearn
+from tflearn.data_utils import to_categorical, shuffle
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.conv import conv_2d, max_pool_2d
 from tflearn.layers.estimator import regression
-import tflearn
+from tflearn.data_preprocessing import ImagePreprocessing
+from tflearn.data_augmentation import ImageAugmentation
 
+# Function to load the data
+def load_data(data_dir, num_classes):
+    X = []
+    Y = []
+    for class_id in range(num_classes):
+        for filename in glob.glob(os.path.join(data_dir, str(class_id), '*.jpg')):
+            im=Image.open(filename)
+            im=np.array(im)
+            X.append(im)
+            Y.append(class_id)
+    return np.array(X), np.array(Y)
 
-# Prepare your data
-path = 'Traffic_Sign_Dataset\Traffic_Sign_Dataset\Train'
-classes = os.listdir(path)
-X = []
-Y = []
-for class_label, class_dir in enumerate(classes):
-    class_path = os.path.join(path, class_dir)
-    images = os.listdir(class_path)
-    for image_name in images:
-        image_path = os.path.join(class_path, image_name)
-        image = cv2.imread(image_path)  # Load image
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Convert from BGR to RGB
-        image = cv2.resize(image, (32, 32))  # Resize to match your network architecture
-        X.append(image)
-        Y.append(class_label)
-X = np.array(X) / 255.0  # Normalize pixel values
-Y = to_categorical(Y, len(classes))  # Convert labels to one-hot vectors
+num_classes = 43  # Adjust this to match the number of road sign types in your dataset
+data_dir = '../Traffic_Sign_Dataset/Train'
+test_dir = '../Traffic_Sign_Dataset/Test'
 
-# Train-test split
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+# Load the data
+X, Y = load_data(data_dir, num_classes)
+X_test, Y_test = load_data(test_dir, num_classes)
 
-# Data preprocessing and augmentation
+# Shuffle the data
+X, Y = shuffle(X, Y)
+
+# Convert labels to one-hot vectors
+Y = to_categorical(Y, num_classes)
+Y_test = to_categorical(Y_test, num_classes)
+
+# Real-time data preprocessing
 img_prep = ImagePreprocessing()
 img_prep.add_featurewise_zero_center()
 img_prep.add_featurewise_stdnorm()
 
+# Real-time data augmentation
 img_aug = ImageAugmentation()
 img_aug.add_random_flip_leftright()
 img_aug.add_random_rotation(max_angle=25.)
-img_aug.add_random_blur(sigma_max=3.)
 
-# Define network architecture
-network = input_data(shape=[None, 32, 32, 3],
-                     data_preprocessing=img_prep,
-                     data_augmentation=img_aug)
-
+# Convolutional network building
+network = input_data(shape=[None, 32, 32, 3], data_preprocessing=img_prep, data_augmentation=img_aug)
 network = conv_2d(network, 32, 3, activation='relu')
 network = max_pool_2d(network, 2)
 network = conv_2d(network, 64, 3, activation='relu')
@@ -56,19 +58,12 @@ network = conv_2d(network, 64, 3, activation='relu')
 network = max_pool_2d(network, 2)
 network = fully_connected(network, 512, activation='relu')
 network = dropout(network, 0.5)
-network = fully_connected(network, len(classes), activation='softmax')
+network = fully_connected(network, num_classes, activation='softmax')  # Changed 10 to num_classes
+network = regression(network, optimizer='adam', loss='categorical_crossentropy', learning_rate=0.001)
 
-network = regression(network, optimizer='adam',
-                     loss='categorical_crossentropy',
-                     learning_rate=0.001)
-
-# Define model
-model = tflearn.DNN(network, tensorboard_verbose=0, checkpoint_path='sign-classifier.tfl.ckpt')
-
-# Train the model
-model.fit(X_train, Y_train, n_epoch=100, shuffle=True, validation_set=(X_test, Y_test),
-          show_metric=True, batch_size=96, snapshot_epoch=True, run_id='sign-classifier')
+# Train using classifier
+model = tflearn.DNN(network, tensorboard_verbose=0)
+model.fit(X, Y, n_epoch=50, shuffle=True, validation_set=(X_test, Y_test), show_metric=True, batch_size=96, run_id='cifar10_cnn')
 
 # Save the model
-model.save("sign-classifier.tfl")
-print("Network trained and saved as sign-classifier.tfl!")
+model.save("road_signs_model.tfl")
