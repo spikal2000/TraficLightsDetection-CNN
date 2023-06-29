@@ -4,7 +4,9 @@ import numpy as np
 # Load YOLO
 net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
 layer_names = net.getLayerNames()
-output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+# output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
+
 
 # Load the image
 img = cv2.imread("stop3.jpg")
@@ -41,6 +43,9 @@ for out in outs:
             class_ids.append(class_id)
 
 indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
+with open("obj.names", "r") as f:
+    classes = [line.strip() for line in f.readlines()]
+colors = np.random.uniform(0, 255, size=(len(classes), 3))
 
 font = cv2.FONT_HERSHEY_PLAIN
 for i in range(len(boxes)):
