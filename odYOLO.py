@@ -9,7 +9,7 @@ output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
 
 
 # Load the image
-img = cv2.imread("stop3.jpg")
+img = cv2.imread("stop3Edit.jpg")
 height, width, channels = img.shape
 
 # Detecting objects
@@ -59,3 +59,4 @@ for i in range(len(boxes)):
 cv2.imshow("Image", img)
 cv2.waitKey(0)
 cv2.destroyAllWindows
+
