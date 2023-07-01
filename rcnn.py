@@ -46,10 +46,11 @@ def get_transform():
 def main():
     df = pd.read_csv(r'C:/Users/spika/Desktop/ACG/MLA/Project/Traffic_Sign_Dataset/Traffic_Sign_Dataset/Train.csv')
     dataset = TrafficSignsDataset(df, r'C:/Users/spika/Desktop/ACG/MLA/Project/Traffic_Sign_Dataset/Traffic_Sign_Dataset/', get_transform())
-    data_loader = DataLoader(dataset, batch_size=2, collate_fn=collate_fn)
+    data_loader = DataLoader(dataset, batch_size=120, collate_fn=collate_fn)
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-    print(device)
+    # print(torch.cuda.is_available())
+    # print(torch.cuda.current_device())
 
     model = fasterrcnn_resnet50_fpn(pretrained=True)
     num_classes = 43  # Including background
@@ -61,11 +62,12 @@ def main():
     params = [p for p in model.parameters() if p.requires_grad]
     optimizer = torch.optim.SGD(params, lr=0.005, momentum=0.9, weight_decay=0.0005)
 
-    num_epochs = 10
+    num_epochs = 1
 
     for epoch in range(num_epochs):
         print(f"Epoch {epoch}/{num_epochs}")
         for i, (images, targets) in enumerate(data_loader):
+            print(f"Iteration {i + 1}/{len(data_loader)}")
             print(f"Targets at iteration {i}: {targets}")
             images = list(image.to(device) for image in images)
 
