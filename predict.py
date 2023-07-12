@@ -23,8 +23,8 @@ import cv2
 from ultralytics.yolo.utils.plotting import Annotator
 
 # model = YOLO('yolov8n.pt')
-model = YOLO(r"C:\Users\spika\Desktop\working yolo\last(3).pt")
-cap = cv2.VideoCapture(r"C:\Users\spika\Desktop\working yolo\g1.mp4")
+model = YOLO(r"yolo_model.pt")
+cap = cv2.VideoCapture(0)
 cap.set(3, 640)
 cap.set(4, 480)
 
