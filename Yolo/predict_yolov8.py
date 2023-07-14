@@ -24,7 +24,8 @@ from ultralytics.yolo.utils.plotting import Annotator
 
 # model = YOLO('yolov8n.pt')
 model = YOLO(r"yolo_model.pt")
-cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture("testimages/1.mp4")
 cap.set(3, 640)
 cap.set(4, 480)
 
