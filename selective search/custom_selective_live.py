@@ -173,7 +173,7 @@ num_classes = 19
 # CNN
 model_cnn = CNNModel(num_classes) # num_classes should be defined
 model_cnn = model_cnn.float()  # Convert the model's parameters to float
-model_cnn.load_state_dict(torch.load('modelBrute.pth')) # Load the trained model state dict
+model_cnn.load_state_dict(torch.load('model_20.pth')) # Load the trained model state dict
 model_cnn.eval()
 
 # Open the video file

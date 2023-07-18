@@ -7,72 +7,72 @@ from torchvision.transforms import transforms
 from PIL import Image
 
 # classes and model definition
-# classes = {
-#     0: 'Speed limit (20km/h)',
-#     1: 'Speed limit (30km/h)',
-#     2: 'Speed limit (50km/h)',
-#     3: 'Speed limit (60km/h)',
-#     4: 'Speed limit (70km/h)',
-#     5: 'Speed limit (80km/h)',
-#     6: 'End of speed limit (80km/h)',
-#     7: 'Speed limit (100km/h)',
-#     8: 'Speed limit (120km/h)',
-#     9: 'No passing',
-#     10: 'No passing veh over 3.5 tons',
-#     11: 'Right-of-way at intersection',
-#     12: 'Priority road',
-#     13: 'Yield',
-#     14: 'Stop',
-#     15: 'No vehicles',
-#     16: 'Veh > 3.5 tons prohibited',
-#     17: 'No entry',
-#     18: 'General caution',
-#     19: 'Dangerous curve left',
-#     20: 'Dangerous curve right',
-#     21: 'Double curve',
-#     22: 'Bumpy road',
-#     23: 'Slippery road',
-#     24: 'Road narrows on the right',
-#     25: 'Road work',
-#     26: 'Traffic signals',
-#     27: 'Pedestrians',
-#     28: 'Children crossing',
-#     29: 'Bicycles crossing',
-#     30: 'Beware of ice/snow',
-#     31: 'Wild animals crossing',
-#     32: 'End speed + passing limits',
-#     33: 'Turn right ahead',
-#     34: 'Turn left ahead',
-#     35: 'Ahead only',
-#     36: 'Go straight or right',
-#     37: 'Go straight or left',
-#     38: 'Keep right',
-#     39: 'Keep left',
-#     40: 'Roundabout mandatory',
-#     41: 'End of no passing',
-#     42: 'End no passing vehicle with a weight greater than 3.5 tons'
-# }
+classes = {
+    0: 'Speed limit (20km/h)',
+    1: 'Speed limit (30km/h)',
+    2: 'Speed limit (50km/h)',
+    3: 'Speed limit (60km/h)',
+    4: 'Speed limit (70km/h)',
+    5: 'Speed limit (80km/h)',
+    6: 'End of speed limit (80km/h)',
+    7: 'Speed limit (100km/h)',
+    8: 'Speed limit (120km/h)',
+    9: 'No passing',
+    10: 'No passing veh over 3.5 tons',
+    11: 'Right-of-way at intersection',
+    12: 'Priority road',
+    13: 'Yield',
+    14: 'Stop',
+    15: 'No vehicles',
+    16: 'Veh > 3.5 tons prohibited',
+    17: 'No entry',
+    18: 'General caution',
+    19: 'Dangerous curve left',
+    20: 'Dangerous curve right',
+    21: 'Double curve',
+    22: 'Bumpy road',
+    23: 'Slippery road',
+    24: 'Road narrows on the right',
+    25: 'Road work',
+    26: 'Traffic signals',
+    27: 'Pedestrians',
+    28: 'Children crossing',
+    29: 'Bicycles crossing',
+    30: 'Beware of ice/snow',
+    31: 'Wild animals crossing',
+    32: 'End speed + passing limits',
+    33: 'Turn right ahead',
+    34: 'Turn left ahead',
+    35: 'Ahead only',
+    36: 'Go straight or right',
+    37: 'Go straight or left',
+    38: 'Keep right',
+    39: 'Keep left',
+    40: 'Roundabout mandatory',
+    41: 'End of no passing',
+    42: 'End no passing vehicle with a weight greater than 3.5 tons'
+}
 
-classes = {0: 'Speed limit (50km/h)',
- 1: 'Speed limit (60km/h)',
- 2: 'Speed limit (70km/h)',
- 3: 'Speed limit (80km/h)',
- 4: 'End of speed limit (80km/h)',
- 5: 'Speed limit (100km/h)',
- 6: 'Stop',
- 7: 'Dangerous curve left',
- 8: 'Dangerous curve right',
- 9: 'Double curve',
- 10: 'Beware of ice/snow',
- 11: 'Wild animals crossing',
- 12: 'Turn right ahead',
- 13: 'Turn left ahead',
- 14: 'Ahead only',
- 15: 'Go straight or right',
- 16: 'Go straight or left',
- 17: 'Keep right',
- 18: 'Keep left',
- 19: 'Roundabout mandatory'}
+# classes = {0: 'Speed limit (50km/h)',
+#  1: 'Speed limit (60km/h)',
+#  2: 'Speed limit (70km/h)',
+#  3: 'Speed limit (80km/h)',
+#  4: 'End of speed limit (80km/h)',
+#  5: 'Speed limit (100km/h)',
+#  6: 'Stop',
+#  7: 'Dangerous curve left',
+#  8: 'Dangerous curve right',
+#  9: 'Double curve',
+#  10: 'Beware of ice/snow',
+#  11: 'Wild animals crossing',
+#  12: 'Turn right ahead',
+#  13: 'Turn left ahead',
+#  14: 'Ahead only',
+#  15: 'Go straight or right',
+#  16: 'Go straight or left',
+#  17: 'Keep right',
+#  18: 'Keep left',
+#  19: 'Roundabout mandatory'}
 
 
 class CNNModel(nn.Module):
@@ -157,17 +157,18 @@ def classify_traffic_sign(image1):
     # return predicted_label, confidence.item()
     
 
-num_classes = 19
+num_classes = 43
 
 # YOLO
 model_yolo = YOLO(r"yolo_model.pt")
-cap = cv2.VideoCapture('1.mp4')
+# cap = cv2.VideoCapture('1.mp4')
+cap = cv2.VideoCapture(0)
 cap.set(3, 640)
 cap.set(4, 480)
 
 # CNN
 model_cnn = CNNModel(num_classes) # num_classes should be defined
-model_cnn.load_state_dict(torch.load('model_20.pth')) # Load the trained model state dict
+model_cnn.load_state_dict(torch.load('model_all.pth')) # Load the trained model state dict
 model_cnn.eval()
 
 # Video writer
@@ -197,19 +198,27 @@ while True:
         for r in results_yolo:
             boxes = r.boxes
             for box in boxes:
-                b = box.xyxy[0]  # get box coordinates in (top, left, bottom, right) format
+                b = box.xyxy[0]
                 x1, y1, x2, y2 = [int(coord) for coord in b]
-                detected_object = frame[y1:y2, x1:x2]
+                
+                # Expand the bounding box dimensions
+                expansion_factor = 1.6
+                w = x2 - x1
+                h = y2 - y1
+                x1 = max(0, int(x1 - (w * (expansion_factor - 1) / 2)))
+                y1 = max(0, int(y1 - (h * (expansion_factor - 1) / 2)))
+                x2 = min(frame.shape[1], int(x2 + (w * (expansion_factor - 1) / 2)))
+                y2 = min(frame.shape[0], int(y2 + (h * (expansion_factor - 1) / 2)))
 
+                detected_object = frame[y1:y2, x1:x2]
                 traffic_sign_label, conf = classify_traffic_sign(detected_object)
 
                 if traffic_sign_label is not None:
                     detected_labels.append(classes[traffic_sign_label])
                     confidences.append(conf)
-                    annotator.box_label(b, classes[traffic_sign_label])  # Add class label
+                    annotator.box_label([x1, y1, x2, y2], classes[traffic_sign_label])
                 else:
-                    annotator.box_label(b)
-
+                    annotator.box_label([x1, y1, x2, y2])
 
         # Multiple predictions for the frame
         combined_text = ' + '.join(detected_labels)
@@ -229,7 +238,6 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord(' '):
         break
 
-
 cap.release()
-out.release()  # Don't forget to release the output file
+out.release()
 cv2.destroyAllWindows()
